@@ -2,6 +2,11 @@ import sys
 from . import utils
 import ice.trace
 
+MODEL_COST_MAP = {
+    "text-davinci-003": 1,
+    "gpt-3.5-turbo": 0.1,
+}
+
 class Prompt(object):
     def __init__(self, llm, func, args, kwargs):
         self.llm = llm
@@ -11,6 +16,16 @@ class Prompt(object):
         async def agenerate(prompt):
             trimmed = utils.dedent(prompt)
             result = await self.llm.agenerate([trimmed])
+            
+            total_tokens = result.llm_output.get("token_usage", 0).get(
+                "total_tokens", 0
+            )
+            davinci_equivalent = int(
+                MODEL_COST_MAP.get(self.llm.model_name, 0) * total_tokens
+            )
+            if davinci_equivalent > 0:
+                ice.trace.add_fields(davinci_equivalent_tokens=davinci_equivalent)
+            
             response = result.generations[0][0].text
             return response
         
