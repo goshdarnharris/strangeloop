@@ -4,6 +4,8 @@ import json
 import textwrap
 from collections import namedtuple
 from .. import utils
+import chromadb
+import ice.trace
 
 @strangeloop.prompt
 def generate_questions(n):
@@ -108,6 +110,7 @@ def summarize_thoughts():
 # Ideas
 # build relationships between ingested data ("I think this is related to that because ...")
 
+@ice.trace.trace
 class memory(object):
     def __init__(self, llm, embedder, filename):
         self.llm = llm
@@ -118,6 +121,8 @@ class memory(object):
         self.ingest_research_questions = generate_questions(self.llm, self.n_questions_ingest)
         self.check_evidence = evidence_check(self.llm)
         self.summarize_thoughts = summarize_thoughts(self.llm)
+        self.chroma_client = chromadb.Client()
+        self.collection = self.chroma_client.create_collection(name = "memory")
 
         self.memory = []
 
@@ -126,6 +131,7 @@ class memory(object):
 
     def write_memory(self, content):
         self.memory.append(content)
+        # self.collection.add([content])
         with open(self.memory_filename, 'a+', encoding = 'utf-8') as f:
             f.write(f"{content}\n")
     
@@ -152,6 +158,9 @@ class memory(object):
             self.write_memory(f"While reading, a question occurred to me: {question}")
 
         claims = await asyncio.gather(*[self.claim_query(question, k = 3) for question in research_questions])
+
+        #At some point, I need to break claims into assumptions and check those assumptions
+
         checks = await asyncio.gather(*[self.check_evidence(data, claim) for claim in claims])
         
         for claim, check in zip(claims, checks):

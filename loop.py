@@ -1,3 +1,8 @@
+import os
+os.environ["OUGHT_ICE_HOST"] = "localhost"
+os.environ["OUGHT_ICE_PORT"] = "5555"
+import langchain_visualizer
+
 import returns
 import strangeloop
 import strangeloop.models
@@ -87,4 +92,4 @@ The power dissipation of the inductor can be approximately calculated by output 
     #Then I can start to implement bits
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    langchain_visualizer.visualize(main)
