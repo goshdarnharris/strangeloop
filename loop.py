@@ -65,7 +65,7 @@ async def main():
     # tool = await r("which pin is drain on the 2n7002?")
     # print(tool)
 
-    mem = strangeloop.memory.critical.memory(
+    mem = strangeloop.memory.critical.Memory(
         strangeloop.models.davinci_003(temperature = 0.8), 
         strangeloop.models.huggingface_embed(),
         "memory.txt"
