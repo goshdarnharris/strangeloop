@@ -44,3 +44,6 @@ def parse_json_reply(reply):
     
 def make_bulleted_list(items, bullet = '*'):
     return '\n'.join(f'{bullet} {item}' for item in items)
+
+def parse_bulleted_list(text, bullet = '*'):
+    return [line.strip()[2:] for line in text.splitlines() if line.startswith(f'{bullet} ')]

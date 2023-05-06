@@ -8,10 +8,10 @@ MODEL_COST_MAP = {
 }
 
 class Prompt(object):
-    def __init__(self, llm, func, args, kwargs):
+    def __init__(self, llm, func):
         self.llm = llm
         self.prompt_name = func.__name__ if hasattr(func, "__name__") else repr(func)
-        self.call_prompt = func(*args, **kwargs)
+        self.call_prompt = func
     async def run(self,  *prompt_args, **prompt_kwargs):
         async def agenerate(prompt):
             trimmed = utils.dedent(prompt)
@@ -37,6 +37,6 @@ class Prompt(object):
         return self.run(*prompt_args, **prompt_kwargs)
 
 def prompt(func):
-    def make_prompt(llm, *args, **kwargs):
-        return Prompt(llm, func, args, kwargs)
+    def make_prompt(llm):
+        return Prompt(llm, func)
     return make_prompt
