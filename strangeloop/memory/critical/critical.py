@@ -59,6 +59,8 @@ class Memory(object):
         return results["documents"]
     
     async def query_entries(self, query, n, **kwargs):
+        if n > self.collection.count():
+            n = self.collection.count()
         results = self.collection.query(query_texts = [query],
             n_results = n,
             include = ["documents"],
